@@ -33,6 +33,11 @@
 *   Note that the only acceptable characters in the output stream are " 012345689{}ABCDEF" and newline ("\n").
 *   The contents of packet headers and any invalid data should not be reported. Incomplete packets should not be reported.
 *
+* Assumptions:
+*   - A packet is considered malformed if the encoded length does not match the read size between MARKERS
+*   - Binary files are piped to stdin
+*   - Malformed packets payloads are assumed to be< 4/3 the possible encoded length
+*
 * Compilation:
 *   $ gcc parse_packets.c -o runpp -Wall -Wextra
 *
@@ -98,6 +103,7 @@ int main()
              */
             fseek(fptr, -1, SEEK_CUR); // Back up 1 byte 
             
+            /* Read in full buffer */ 
             if ( fread(buffer, sizeof(buffer), 1, fptr) > 0)
             {
                 /* Check for presence of both MARKERS */ 
@@ -177,9 +183,9 @@ int main()
                     num_packets++;
                 
                 } /* Both markers not found, keep reading */
-            } /* Failed to read 3 bytes for marker and len */ 
+            } /* Failed to read 3 bytes for markers and len, maybe hit EOF, caught by while */ 
         } /* No marker 1 */
-    } /* Not at EOF */ 
+    } /* While not at EOF */ 
 
     // Sanity checks:    
     fprintf(stderr,"Number of packets found     : %i\n", num_packets);
