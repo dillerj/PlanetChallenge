@@ -1,0 +1,13 @@
+* Assumptions:
+*   - A packet is considered malformed if the encoded length does not match the read size between MARKERS
+*   - Binary files are piped to stdin
+*   - Malformed packets payloads are assumed to be < 4/3 the possible encoded length
+*
+* Compilation:
+*   $ gcc parse_packets.c -o runpp -Wall -Wextra
+*
+* Usage: 
+*   Pipe file to program, read as stdin
+*   $ ./runpp < 10_short_packets
+*   $ ./runpp < 200_packets
+*   $ ./runpp < 2_packets
